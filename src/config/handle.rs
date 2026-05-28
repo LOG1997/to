@@ -1,6 +1,9 @@
 use crate::common::file_path::get_config_path;
 use anyhow::Result;
-use std::{fs, path::Path};
+use std::{
+    fs,
+    path::{Path, absolute},
+};
 use toml::{Value, map::Map};
 
 pub fn add_config(name: &str, mut value: &str) -> Result<()> {
@@ -21,7 +24,9 @@ pub fn add_config(name: &str, mut value: &str) -> Result<()> {
 
     let mut command_value = value.to_string();
     if Path::new(value).is_dir() || Path::new(value).is_file() {
-        let whole_path = fs::canonicalize(value).unwrap_or_default().to_owned();
+        // let whole_path = fs::canonicalize(value)?;
+        let whole_path = absolute(value)?;
+        println!("whosladlas:{:?}", whole_path);
         command_value = whole_path.to_str().unwrap().to_string();
     }
     commands_table.insert(name.to_string(), Value::String(command_value));

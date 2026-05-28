@@ -9,12 +9,18 @@ pub enum CommandType {
     LocalApp,
     DirPath,
     FilePath,
+    DirectCommand,
     Other,
 }
 
 pub fn match_command_type(command: &str) -> CommandType {
     let command_trim = command.trim();
-    if command_trim.starts_with("http") {
+    if command_trim.starts_with(".")
+        || command_trim.starts_with("/")
+        || command_trim.starts_with("http")
+    {
+        return CommandType::DirectCommand;
+    } else if command_trim.starts_with("http") {
         return CommandType::WebPage;
     } else if which(command_trim).is_ok() {
         return CommandType::LocalApp;

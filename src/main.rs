@@ -56,9 +56,18 @@ fn main() -> Result<()> {
             if args.is_empty() {
                 anyhow::bail!("缺少命令名");
             }
-            let cmd_name = &args[0];
-            let cmd_params = &args[1];
+            let cmd_name = match args.get(0) {
+                Some(name) => name,
+                None => {
+                    return Err(anyhow::anyhow!("缺少命令名"));
+                }
+            };
+            let cmd_params = args.get(1).map(|s| s.as_str()).unwrap_or("");
             let command_result = query_command_name(cmd_name)?;
+            let cmd_type = match_command_type(cmd_name);
+            if cmd_type == CommandType::DirectCommand {
+                return run_command(cmd_name.to_owned(), cmd_params.to_owned());
+            }
             match command_result {
                 Some(value) => run_command(value, cmd_params.to_owned())?,
                 None => println!("this is no command"),
