@@ -3,7 +3,7 @@ use anyhow::Result;
 use clap::builder::Str;
 use std::process::{Command, Stdio};
 
-pub fn run_command(value: String) -> Result<()> {
+pub fn run_command(value: String, param: String) -> Result<()> {
     let command_type = match_command_type(value.as_str());
     match command_type {
         CommandType::DirPath => {
@@ -13,13 +13,10 @@ pub fn run_command(value: String) -> Result<()> {
             open_file(value);
         }
         CommandType::LocalApp => {
-            Command::new(value)
-                .stdout(Stdio::null()) // 丢弃标准输出
-                .stderr(Stdio::null()) // 丢弃标准错误
-                .spawn()?;
+            open_app(value)?;
         }
         CommandType::WebPage => {
-            open_web_page(value);
+            open_web_page(value, param)?;
         }
         CommandType::Other => {
             println!("so soryy,i cant run your command")
@@ -28,7 +25,7 @@ pub fn run_command(value: String) -> Result<()> {
     Ok(())
 }
 
-fn open_web_page(url: String) {
+fn open_web_page(url: String, parms: String) -> Result<()> {
     #[cfg(target_os = "windows")]
     {
         Command::new("start")
@@ -38,14 +35,17 @@ fn open_web_page(url: String) {
     }
     #[cfg(target_os = "linux")]
     {
+        let result = insert_into_template(url.as_str(), parms.as_str());
         Command::new("xdg-open")
-            .arg(url)
-            .status()
-            .expect("命令执行失败");
+            .arg(result)
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .spawn()?;
+        Ok(())
     }
-    todo!("macos open browser of url");
     #[cfg(target_os = "macos")]
     {
+        todo!("macos open browser of url");
         // Command::new("xdg-open")
         //     .arg(url)
         //     .status()
@@ -100,5 +100,38 @@ fn open_file(path: String) {
         //     .arg(path)
         //     .status()
         //     .expect("命令执行失败");
+    }
+}
+
+fn open_app(app_name: String) -> Result<()> {
+    #[cfg(target_os = "windows")]
+    {
+        Command::new("vim")
+            .arg(path)
+            .status()
+            .expect("命令执行失败");
+    }
+    #[cfg(target_os = "linux")]
+    {
+        Command::new(app_name)
+            .stdout(Stdio::null()) // 丢弃标准输出
+            .stderr(Stdio::null()) // 丢弃标准错误
+            .spawn()?;
+        Ok(())
+    }
+    #[cfg(target_os = "macos")]
+    {
+        todo!("open macos file path");
+        // Command::new("vim")
+        //     .arg(path)
+        //     .status()
+        //     .expect("命令执行失败");
+    }
+}
+fn insert_into_template(template: &str, input: &str) -> String {
+    if template.contains("{}") {
+        return template.replace("{}", input);
+    } else {
+        return template.to_string() + input;
     }
 }

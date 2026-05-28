@@ -57,9 +57,10 @@ fn main() -> Result<()> {
                 anyhow::bail!("缺少命令名");
             }
             let cmd_name = &args[0];
+            let cmd_params = &args[1];
             let command_result = query_command_name(cmd_name)?;
             match command_result {
-                Some(value) => run_command(value)?,
+                Some(value) => run_command(value, cmd_params.to_owned())?,
                 None => println!("this is no command"),
             }
         }
