@@ -1,18 +1,30 @@
 mod common;
 mod config;
+mod run;
 use crate::config::{
     generate,
-    handle::{add_config, delete_config, list_config, search_config},
+    handle::{add_config, delete_config, list_config, query_command_name, search_config},
 };
-use anyhow::Result;
+use crate::run::assort::{CommandType, match_command_type};
+use crate::run::handle::run_command;
+use anyhow::{Ok, Result};
 use clap::{Parser, Subcommand};
+use std::{fs, path::Path};
 
 #[derive(Debug, Subcommand)]
 enum Action {
-    Add { items: Vec<String> },
-    Search { query: Vec<String> },
-    Delete { ids: Vec<String> },
+    Add {
+        items: Vec<String>,
+    },
+    Search {
+        query: Vec<String>,
+    },
+    Delete {
+        ids: Vec<String>,
+    },
     List,
+    #[command(external_subcommand)]
+    Custom(Vec<String>),
 }
 
 #[derive(Parser, Debug)]
@@ -25,6 +37,13 @@ struct Args {
 fn main() -> Result<()> {
     generate::generate_config();
     let args = Args::parse();
+
+    let com_path = Path::new("./src.rs");
+    if com_path.is_dir() {
+        println!("is dir");
+    } else if com_path.is_file() {
+        println!("is file");
+    }
     match args.action {
         Action::Add { items } => add_config(items[0].as_str(), items[1].as_str())?,
         Action::Search { query } => search_config(query[0].as_str())?,
@@ -32,6 +51,32 @@ fn main() -> Result<()> {
             delete_config(ids.iter().map(|i| i.as_str()).collect::<Vec<_>>())?
         }
         Action::List => list_config()?,
+        Action::Custom(args) => {
+            // args 的第一个元素是命令名，后面是参数
+            if args.is_empty() {
+                anyhow::bail!("缺少命令名");
+            }
+            let cmd_name = &args[0];
+            let command_result = query_command_name(cmd_name)?;
+            match command_result {
+                Some(value) => {
+                    // let command_type = match_command_type(cmd_name);
+                    // println!("coamsmdty:{:?}", command_type);
+                    // if command_type == CommandType::Other {
+                    //     println!("i cant konw your command type");
+                    // } else {
+                    run_command(value)?
+                    // }
+                }
+                None => println!("this is no command"),
+            }
+            // let command_type = match_command_type(cmd_name);
+            // println!("coamsmdty:{:?}", command_type);
+            // if command_type==CommandType::Other{
+            //     panic!("")
+            // }
+            // let cmd_args = &args[1..];
+        }
     }
     Ok(())
 }
