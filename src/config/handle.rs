@@ -1,9 +1,9 @@
 use crate::common::file_path::get_config_path;
 use anyhow::Result;
-use std::fs;
+use std::{fs, path::Path};
 use toml::{Value, map::Map};
 
-pub fn add_config(name: &str, value: &str) -> Result<()> {
+pub fn add_config(name: &str, mut value: &str) -> Result<()> {
     let config_path = get_config_path();
     let content = fs::read_to_string(config_path).unwrap_or_default();
     let mut root: Value = if content.is_empty() {
@@ -19,7 +19,12 @@ pub fn add_config(name: &str, value: &str) -> Result<()> {
         .as_table_mut()
         .expect("commands 必须是表");
 
-    commands_table.insert(name.to_string(), Value::String(value.to_string()));
+    let mut command_value = value.to_string();
+    if Path::new(value).is_dir() || Path::new(value).is_file() {
+        let whole_path = fs::canonicalize(value).unwrap_or_default().to_owned();
+        command_value = whole_path.to_str().unwrap().to_string();
+    }
+    commands_table.insert(name.to_string(), Value::String(command_value));
 
     let new_content = toml::to_string(&root)?;
     fs::write(config_path, new_content)?;

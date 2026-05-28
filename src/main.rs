@@ -59,23 +59,9 @@ fn main() -> Result<()> {
             let cmd_name = &args[0];
             let command_result = query_command_name(cmd_name)?;
             match command_result {
-                Some(value) => {
-                    // let command_type = match_command_type(cmd_name);
-                    // println!("coamsmdty:{:?}", command_type);
-                    // if command_type == CommandType::Other {
-                    //     println!("i cant konw your command type");
-                    // } else {
-                    run_command(value)?
-                    // }
-                }
+                Some(value) => run_command(value)?,
                 None => println!("this is no command"),
             }
-            // let command_type = match_command_type(cmd_name);
-            // println!("coamsmdty:{:?}", command_type);
-            // if command_type==CommandType::Other{
-            //     panic!("")
-            // }
-            // let cmd_args = &args[1..];
         }
     }
     Ok(())
