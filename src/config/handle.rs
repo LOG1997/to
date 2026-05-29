@@ -3,6 +3,7 @@ use anyhow::Result;
 use std::{
     fs,
     path::{Path, absolute},
+    process::Command,
 };
 use toml::{Value, map::Map};
 
@@ -49,7 +50,6 @@ pub fn search_config(params: &str) -> Result<()> {
         .or_insert_with(|| Value::Table(Map::new()))
         .as_table_mut()
         .expect("commands 必须是表");
-    println!("cmaomsadlasmd:{:?}", commands_table);
 
     let results: Vec<_> = commands_table
         .iter()
@@ -129,4 +129,20 @@ pub fn query_command_name(query_name: &str) -> Result<Option<String>> {
     } else {
         Ok(None)
     }
+}
+
+pub fn edit_config_file(vim: bool) -> Result<()> {
+    let config_path = get_config_path();
+    if vim {
+        Command::new("vim").arg(config_path).status()?;
+    } else {
+        opener::open(config_path)?;
+    }
+    Ok(())
+}
+
+pub fn get_about_info() -> Result<()> {
+    let content = fs::read_to_string("README.md")?;
+    println!("{}", content);
+    Ok(())
 }

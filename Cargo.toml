@@ -3,6 +3,18 @@ name = "to"
 version = "0.1.0"
 edition = "2024"
 
+[profile.release]
+# 优化级别：'z' 侧重极致体积优化，'s' 则在体积和性能间取平衡[reference:4]
+opt-level = "z"
+# 链接时优化(LTO): 'fat' 效果最好但慢，'thin' 是性能和速度的折中[reference:5][reference:6]
+lto = "fat"
+# 代码生成单元：设为1，让编译器进行更多跨模块优化[reference:7][reference:8]
+codegen-units = 1
+# panic策略：设为 "abort"，避免生成庞大的栈展开代码，可减少10%-20%体积[reference:9][reference:10]
+panic = "abort"
+# 剥离符号：自动移除调试信息等，可减少约30%的体积[reference:11][reference:12]
+strip = true
+
 [dependencies]
 anyhow = "1.0.102"
 clap = { version = "4.6.1", features = ["derive"] }

@@ -28,6 +28,7 @@ pub fn run_command(value: String, param: String) -> Result<()> {
 }
 
 fn open_web_page(url: String, parms: String) -> Result<()> {
+    // 不用区分环境了，webbrowser已经做了
     let result = insert_into_template(url.as_str(), parms.as_str());
     webbrowser::open(result.as_str())?;
     Ok(())
@@ -41,7 +42,7 @@ fn open_dir(path: String) -> Result<()> {
     }
     #[cfg(target_os = "linux")]
     {
-        Command::new("xdg-open").arg(path).spawn()?;
+        opener::open(path)?;
         Ok(())
     }
     #[cfg(target_os = "macos")]
@@ -51,20 +52,9 @@ fn open_dir(path: String) -> Result<()> {
 }
 
 fn open_file(path: String) -> Result<()> {
-    #[cfg(target_os = "windows")]
-    {
-        opener::open(path)?;
-        Ok(())
-    }
-    #[cfg(target_os = "linux")]
-    {
-        opener::open(path)?;
-        Ok(())
-    }
-    #[cfg(target_os = "macos")]
-    {
-        todo!("open macos file path");
-    }
+    // 这个不用区分环境，opener已经做了
+    opener::open(path)?;
+    Ok(())
 }
 
 fn open_app(app_name: String) -> Result<()> {
