@@ -15,12 +15,12 @@ pub enum Action {
 
     #[command(
         about = "删除指定命令",
-        long_about = "可以连续删除多个，格式为 to delete [name1] [name2]..."
+        long_about = "可以连续删除多个，格式为 to del [name1] [name2]..."
     )]
-    Delete { ids: Vec<String> },
+    Del { ids: Vec<String> },
 
-    #[command(about = "列出所有命令", long_about = "格式为 to list，不用参数")]
-    List,
+    #[command(about = "列出所有命令", long_about = "格式为 to ls，不用参数")]
+    Ls,
     #[command(
         about = "编辑配置文件",
         long_about = "格式为to edit，使用系统应用打开，如果要使用vim编辑请添加--vim参数"

@@ -13,6 +13,7 @@ use crate::run::assort::{CommandType, is_direct_command};
 use crate::run::handle::run_command;
 use anyhow::{Ok, Result};
 use clap::Parser;
+use colored::*;
 
 fn main() -> Result<()> {
     generate::generate_config();
@@ -21,10 +22,8 @@ fn main() -> Result<()> {
     match args.action {
         Action::Add { items } => add_config(items[0].as_str(), items[1].as_str())?,
         Action::Search { query } => search_config(query[0].as_str())?,
-        Action::Delete { ids } => {
-            delete_config(ids.iter().map(|i| i.as_str()).collect::<Vec<_>>())?
-        }
-        Action::List => list_config()?,
+        Action::Del { ids } => delete_config(ids.iter().map(|i| i.as_str()).collect::<Vec<_>>())?,
+        Action::Ls => list_config()?,
         Action::Edit { vim } => edit_config_file(vim)?,
         Action::About => get_about_info()?,
         Action::Custom(args) => {
@@ -50,7 +49,7 @@ fn main() -> Result<()> {
 
             match command_result {
                 Some(value) => run_command(value, cmd_params.to_owned())?,
-                None => println!("This command is invalid"),
+                None => println!("{}", "This command is invalid".red()),
             }
         }
     }

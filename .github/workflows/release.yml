@@ -1,0 +1,89 @@
+name: Build & Release to
+
+on:
+  push:
+    tags:
+      - "v*" # 打 tag 自动触发
+  workflow_dispatch: # 手动触发
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  build:
+    name: Build ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            platform: windows-x64
+            artifact_name: to-${{ github.ref_name }}-windows-x64.zip
+            binary: target/release/to.exe
+
+          - os: ubuntu-latest
+            platform: linux-x64
+            artifact_name: opengit-${{ github.ref_name }}-linux-x64.zip
+            binary: target/release/to
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 安装 Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: 编译 Release
+        run: cargo build --release
+
+      - name: 打包 Windows
+        if: matrix.os == 'windows-latest'
+        run: Compress-Archive -Path ${{ matrix.binary }} -DestinationPath ${{ matrix.artifact_name }}
+
+      - name: 打包 Linux
+        if: matrix.os == 'ubuntu-latest'
+        run: zip -j ${{ matrix.artifact_name }} ${{ matrix.binary }}
+
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: ${{ matrix.artifact_name }}
+
+  # 自动创建 Release Draft 并上传所有文件
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+      - name: 生成发布说明
+        run: |
+          cat << EOF > RELEASE_NOTES.md
+          ## 🎉 to ${{ github.ref_name }}
+
+          自动构建版本
+
+          ### 下载
+          - Windows: to-${{ github.ref_name }}-windows-x64.zip
+          - Linux: to-${{ github.ref_name }}-linux-x64.zip
+          EOF
+
+      - name: 创建 Draft Release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        with:
+          name: OpenGit ${{ github.ref_name }}
+          draft: true
+          prerelease: false
+          files: artifacts/**/*.zip
+          generate_release_notes: true

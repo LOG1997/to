@@ -1,5 +1,6 @@
 use crate::common::file_path::get_config_path;
 use anyhow::Result;
+use colored::*;
 use std::{
     fs,
     path::{Path, absolute},
@@ -57,7 +58,12 @@ pub fn search_config(params: &str) -> Result<()> {
             name.contains(params) || value.as_str().unwrap_or("").contains(params)
         })
         .collect();
-    println!("结果: {:?}", results);
+    println!("查询结果:");
+    for item in results {
+        print!("{:<10}", item.0.blue());
+        print!("{:^4}", "=");
+        println!("{}", item.1.to_string().green())
+    }
 
     Ok(())
 }
@@ -74,14 +80,18 @@ pub fn list_config() -> Result<()> {
     let commands_table = root_table
         .get("commands")
         .and_then(|v| v.as_table())
-        .expect("commoasdmasd");
+        .expect("commands 必须是表");
+
+    println!("查询结果:");
     for (name, value) in commands_table {
-        println!("{}: {}", name, value.as_str().unwrap_or(""));
+        print!("{:<10}", name.blue());
+        print!("{:^4}", "=");
+        println!("{}", value.to_string().green());
     }
     Ok(())
 }
 
-pub fn delete_config(name: Vec<&str>) -> Result<()> {
+pub fn delete_config(names: Vec<&str>) -> Result<()> {
     let config_path = get_config_path();
     let content = fs::read_to_string(config_path).unwrap_or_default();
     let mut root: Value = if content.is_empty() {
@@ -96,9 +106,14 @@ pub fn delete_config(name: Vec<&str>) -> Result<()> {
         .as_table_mut()
         .expect("commands 必须是表");
 
-    for n in name {
-        commands_table.remove(n);
-        println!("删除——{}", n)
+    for n in names {
+        let is_existed = commands_table.get_key_value(n).is_some();
+        if !is_existed {
+            println!("there is no your command: {}", n.red());
+        } else {
+            commands_table.remove(n);
+            println!("已删除——{}", n.bright_red())
+        }
     }
     fs::write(config_path, toml::to_string(&root)?)?;
     Ok(())
@@ -143,9 +158,11 @@ pub fn edit_config_file(vim: bool) -> Result<()> {
 
 pub fn get_about_info() -> Result<()> {
     let content = fs::read_to_string("README.md")?;
-    println!("name: {}", env!("CARGO_PKG_NAME"));
-    println!("version: {}", env!("CARGO_PKG_VERSION"));
+    println!("name: {}", env!("CARGO_PKG_NAME").green());
+    println!("version: {}", env!("CARGO_PKG_VERSION").green());
+    println!();
     println!("----------------------------------------");
+    println!();
     println!("{}", content);
     Ok(())
 }

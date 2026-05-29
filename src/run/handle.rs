@@ -1,5 +1,6 @@
 use crate::run::assort::{CommandType, match_command_type};
 use anyhow::Result;
+use shell_words;
 use std::process::{Command, Stdio};
 
 pub fn run_command(value: String, param: String) -> Result<()> {
@@ -21,7 +22,11 @@ pub fn run_command(value: String, param: String) -> Result<()> {
             opener::open(value)?;
         }
         CommandType::Other => {
-            println!("so soryy,i cant run your command")
+            println!("so sorry,i cant run your command {}", value);
+            let args = shell_words::split(value.as_str())?;
+            if let Some(prog) = args.first() {
+                Command::new(prog).args(&args[1..]).status()?;
+            }
         }
     }
     Ok(())
