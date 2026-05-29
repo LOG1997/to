@@ -41,10 +41,8 @@ fn open_dir(path: String) -> Result<()> {
     }
     #[cfg(target_os = "linux")]
     {
-        Command::new("xdg-open")
-            .arg(path)
-            .status()
-            .expect("命令执行失败");
+        Command::new("xdg-open").arg(path).spawn()?;
+        Ok(())
     }
     #[cfg(target_os = "macos")]
     {
@@ -60,10 +58,8 @@ fn open_file(path: String) -> Result<()> {
     }
     #[cfg(target_os = "linux")]
     {
-        Command::new("vim")
-            .arg(path)
-            .status()
-            .expect("命令执行失败");
+        opener::open(path)?;
+        Ok(())
     }
     #[cfg(target_os = "macos")]
     {

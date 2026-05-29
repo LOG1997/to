@@ -6,7 +6,7 @@ use std::{
 };
 use toml::{Value, map::Map};
 
-pub fn add_config(name: &str, mut value: &str) -> Result<()> {
+pub fn add_config(name: &str, value: &str) -> Result<()> {
     let config_path = get_config_path();
     let content = fs::read_to_string(config_path).unwrap_or_default();
     let mut root: Value = if content.is_empty() {
@@ -24,9 +24,7 @@ pub fn add_config(name: &str, mut value: &str) -> Result<()> {
 
     let mut command_value = value.to_string();
     if Path::new(value).is_dir() || Path::new(value).is_file() {
-        // let whole_path = fs::canonicalize(value)?;
         let whole_path = absolute(value)?;
-        println!("whosladlas:{:?}", whole_path);
         command_value = whole_path.to_str().unwrap().to_string();
     }
     commands_table.insert(name.to_string(), Value::String(command_value));

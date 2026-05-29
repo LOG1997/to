@@ -5,11 +5,11 @@ use crate::config::{
     generate,
     handle::{add_config, delete_config, list_config, query_command_name, search_config},
 };
-use crate::run::assort::{CommandType, match_command_type};
+use crate::run::assort::{CommandType, is_direct_command};
 use crate::run::handle::run_command;
 use anyhow::{Ok, Result};
 use clap::{Parser, Subcommand};
-use std::{fs, path::Path};
+use std::path::Path;
 
 #[derive(Debug, Subcommand)]
 enum Action {
@@ -62,12 +62,16 @@ fn main() -> Result<()> {
                     return Err(anyhow::anyhow!("缺少命令名"));
                 }
             };
+
             let cmd_params = args.get(1).map(|s| s.as_str()).unwrap_or("");
-            let command_result = query_command_name(cmd_name)?;
-            let cmd_type = match_command_type(cmd_name);
+
+            let cmd_type = is_direct_command(cmd_name);
             if cmd_type == CommandType::DirectCommand {
                 return run_command(cmd_name.to_owned(), cmd_params.to_owned());
             }
+
+            let command_result = query_command_name(cmd_name)?;
+
             match command_result {
                 Some(value) => run_command(value, cmd_params.to_owned())?,
                 None => println!("this is no command"),
