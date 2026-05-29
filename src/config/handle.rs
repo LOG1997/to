@@ -157,12 +157,13 @@ pub fn edit_config_file(vim: bool) -> Result<()> {
 }
 
 pub fn get_about_info() -> Result<()> {
-    let content = fs::read_to_string("README.md")?;
+    let readme_content = include_str!("../../README.md");
+    println!("{}", readme_content);
     println!("name: {}", env!("CARGO_PKG_NAME").green());
     println!("version: {}", env!("CARGO_PKG_VERSION").green());
     println!();
     println!("----------------------------------------");
     println!();
-    println!("{}", content);
+    println!("{}", readme_content);
     Ok(())
 }
