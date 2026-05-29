@@ -69,3 +69,7 @@ Windows、Linux[Ubuntu]
   最简单的方式是，把`to`放到`C:\Windows\System32`中：
 
   `New-Item -ItemType SymbolicLink -Path "C:\Windows\System32\to.exe" -Target "D:\[your path]\to.exe"`
+
+## 备注
+
+运行该命令会在用户文件夹下创建一个配置文件`config.toml`，路径为`~/.config/to/config.toml`
