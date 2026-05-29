@@ -25,7 +25,7 @@ jobs:
 
           - os: ubuntu-latest
             platform: linux-x64
-            artifact_name: opengit-${{ github.ref_name }}-linux-x64.zip
+            artifact_name: to-${{ github.ref_name }}-linux-x64.zip
             binary: target/release/to
 
     steps:
@@ -82,7 +82,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         with:
-          name: OpenGit ${{ github.ref_name }}
+          name: to ${{ github.ref_name }}
           draft: true
           prerelease: false
           files: artifacts/**/*.zip
