@@ -1,10 +1,10 @@
 use crate::run::assort::{CommandType, match_command_type};
 use anyhow::Result;
-use shell_words;
 use std::process::{Command, Stdio};
 
 pub fn run_command(value: String, params: Vec<String>) -> Result<()> {
     let command_type = match_command_type(value.as_str());
+    println!("command type is {:?}", command_type);
     match command_type {
         CommandType::DirPath => {
             open_dir(value)?;
@@ -22,11 +22,12 @@ pub fn run_command(value: String, params: Vec<String>) -> Result<()> {
             opener::open(value)?;
         }
         CommandType::Other => {
-            println!("so sorry,i cant run your command {}", value);
-            let args = shell_words::split(value.as_str())?;
-            if let Some(prog) = args.first() {
-                Command::new(prog).args(&args[1..]).status()?;
-            }
+            // println!("so sorry,i cant run your command {}", value);
+            // let args = shell_words::split(value.as_str())?;
+            // if let Some(prog) = args.first() {
+            //     Command::new(prog).args(&args[1..]).status()?;
+            // }
+            open_other_command(value, params)?;
         }
     }
     Ok(())
@@ -81,6 +82,38 @@ fn open_app(app_name: String) -> Result<()> {
         todo!("open macos file path");
     }
 }
+
+fn open_other_command(value: String, params: Vec<String>) -> Result<()> {
+    #[cfg(target_os = "windows")]
+    {
+        Command::new("cmd")
+            .arg("/c")
+            .arg(value)
+            .args(params)
+            .spawn()
+            .expect("Failed to open your command");
+        Ok(())
+    }
+    #[cfg(target_os = "linux")]
+    {
+        Command::new(value)
+            .args(params)
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .spawn()?;
+        Ok(())
+    }
+    #[cfg(target_os = "macos")]
+    {
+        Command::new(value)
+            .args(params)
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .spawn()?;
+        Ok(())
+    }
+}
+
 fn insert_into_template(template: &str, input: &str) -> String {
     if template.contains("{}") {
         return template.replace("{}", input);

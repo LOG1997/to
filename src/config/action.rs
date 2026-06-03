@@ -3,7 +3,7 @@ use clap::{Parser, Subcommand};
 pub enum Action {
     #[command(
         about = "添加命令，格式为 to add [name] [value]",
-        long_about = "如果需要参数，则在value中添加{}为占位符，执行时传入"
+        long_about = "如果需要参数，则在value中添加{}为占位符，执行时传入;如果需要添加的命令带有空格，请将命令以双引号包裹"
     )]
     Add { items: Vec<String> },
 
