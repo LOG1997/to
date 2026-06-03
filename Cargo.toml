@@ -27,3 +27,29 @@ shell-words = "1.1.1"
 toml = "1.1.2"
 webbrowser = "1.2.1"
 which = "8.0.2"
+
+[package.metadata.bundle]
+# --- 通用配置 (必填) ---
+# 唯一标识符，反向DNS格式
+identifier = "to.log1997.app"
+# 应用程序名称，如果未指定，则使用 [package] 中的 name
+name = "to"
+# 版本号
+version = "0.1.4"
+# 版权信息
+copyright = "Copyright (c) 2024, log1997"
+
+# --- 可选配置 ---
+# 应用简介
+short_description = "管理你的快捷命令"
+# 详细描述
+long_description = "管理你的快捷命令"
+
+# 图标文件列表（支持多种尺寸）
+icon = ["icons/32x32.png", "icons/128x128.png"]
+
+# 资源文件（支持 glob 模式）
+resources = ["assets/**/*"]
+
+# macOS 应用分类
+category = "public.app-category.utilities"
