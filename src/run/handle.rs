@@ -1,16 +1,15 @@
 use crate::run::assort::{CommandType, match_command_type};
-use anyhow::Result;
+use anyhow::{Ok, Result};
 use std::process::{Command, Stdio};
 
 pub fn run_command(value: String, params: Vec<String>) -> Result<()> {
     let command_type = match_command_type(value.as_str());
-    println!("command type is {:?}", command_type);
     match command_type {
         CommandType::DirPath => {
             open_dir(value)?;
         }
         CommandType::FilePath => {
-            open_file(value)?;
+            open_file(value, params)?;
         }
         CommandType::LocalApp => {
             open_app(value)?;
@@ -57,9 +56,20 @@ fn open_dir(path: String) -> Result<()> {
     }
 }
 
-fn open_file(path: String) -> Result<()> {
-    // 这个不用区分环境，opener已经做了
-    opener::open(path)?;
+fn open_file(path: String, params: Vec<String>) -> Result<()> {
+    let inline_edit = params
+        .iter()
+        .find(|p| **p == "--vim" || **p == "--nvim" || **p == "--vi" || **p == "--hx");
+
+    match inline_edit {
+        Some(cmd_pre) => {
+            let cmd = cmd_pre.replace("--", "");
+            Command::new(cmd).arg(path).status()?;
+        }
+        None => {
+            opener::open(path)?;
+        }
+    }
     Ok(())
 }
 
