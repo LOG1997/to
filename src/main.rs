@@ -38,7 +38,8 @@ fn main() -> Result<()> {
                 }
             };
 
-            let cmd_params = args.get(1).map(|s| s.as_str()).unwrap_or("");
+            // let cmd_params = args.get(1).map(|s| s.as_str()).unwrap_or("");
+            let cmd_params = args.get(1..).unwrap_or_default();
 
             let cmd_type = is_direct_command(cmd_name);
             if cmd_type == CommandType::DirectCommand {

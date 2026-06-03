@@ -3,7 +3,7 @@ use anyhow::Result;
 use shell_words;
 use std::process::{Command, Stdio};
 
-pub fn run_command(value: String, param: String) -> Result<()> {
+pub fn run_command(value: String, params: Vec<String>) -> Result<()> {
     let command_type = match_command_type(value.as_str());
     match command_type {
         CommandType::DirPath => {
@@ -16,7 +16,7 @@ pub fn run_command(value: String, param: String) -> Result<()> {
             open_app(value)?;
         }
         CommandType::WebPage => {
-            open_web_page(value, param)?;
+            open_web_page(value, params)?;
         }
         CommandType::DirectCommand => {
             opener::open(value)?;
@@ -32,9 +32,9 @@ pub fn run_command(value: String, param: String) -> Result<()> {
     Ok(())
 }
 
-fn open_web_page(url: String, parms: String) -> Result<()> {
+fn open_web_page(url: String, parms: Vec<String>) -> Result<()> {
     // 不用区分环境了，webbrowser已经做了
-    let result = insert_into_template(url.as_str(), parms.as_str());
+    let result = insert_into_template(url.as_str(), parms.join(" ").as_str());
     webbrowser::open(result.as_str())?;
     Ok(())
 }
