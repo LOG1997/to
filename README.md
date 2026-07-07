@@ -1,5 +1,7 @@
 # to: 你的快捷命令管理器
 
+![to](./assets/images/to_ls.png)
+
 [使用rust构建] 配置你的快捷命令，在命令行快速的打开网页、应用、文件夹或者文件。
 
 ## 适用平台
@@ -8,7 +10,7 @@ Windows、Linux[Ubuntu]
 
 ## 命令说明
 
-### 1. 添加: 
+### 1. 添加
 
   向配置文件中添加命令
 
@@ -16,7 +18,7 @@ Windows、Linux[Ubuntu]
 
   比如: `to add github https://github.com`、`to add host /etc/hosts`,如果我想快捷打开翻译，以百度翻译为例，可以这样配置`to add fy https://fanyi.baidu.com/mtpe-individual/transText\?query\=\{\}`，执行`to fy dangerous`，就可以在网页查看翻译
 
-### 2. 删除:
+### 2. 删除
 
   从配置文件中删除指定命令
 
@@ -24,13 +26,13 @@ Windows、Linux[Ubuntu]
 
   比如: `to del github`
 
-### 3. 列表:
+### 3. 列表
 
   打印出所有配置好的命令列表
 
   to ls
 
-### 4. 查找:
+### 4. 查找
 
   查找命令，会从name和value中查找
 
@@ -38,7 +40,7 @@ Windows、Linux[Ubuntu]
 
   比如: `to search github`
 
-### 5. 编辑配置文件:
+### 5. 编辑配置文件
 
   使用系统默认应用直接打开配置文件，如果想要使用vim打开，请在后面添加`--vim`参数
 
